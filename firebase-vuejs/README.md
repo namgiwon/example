@@ -1,6 +1,6 @@
-# thankyoureward-store-web-app
+# firebase-vuejs
 
-> 가맹점용 웹앱
+> 파이어베이스 인증 기능이 적용된 프로젝트 뼈대
 
 ## Build Setup
 
