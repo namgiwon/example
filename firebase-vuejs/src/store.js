@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { myFirebase } from "./firebase";
+import axios from "axios";
 
 Vue.use(Vuex);
 
@@ -23,6 +24,9 @@ export const store = new Vuex.Store({
     },
     setFirebaseToken(state, token) {
       state.firebaseToken = token;
+      axios.defaults.headers.common = {
+        Authorization: "Bearer " + token
+      };
     },
     refreshFirebaseToken(state) {
       myFirebase
@@ -30,6 +34,9 @@ export const store = new Vuex.Store({
         .currentUser.getIdToken(/* forceRefresh */ true)
         .then(function(idToken) {
           state.firebaseToken = idToken;
+          axios.defaults.headers.common = {
+            Authorization: "Bearer " + token
+          };
         });
     }
   },

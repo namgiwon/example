@@ -1,7 +1,17 @@
 <template>
   <div class="container">
-    쿠폰 목록
-    <br />
+    <b-table striped responsive head-variant="dark" hover :items="items" :fields="fields" small>
+      <template v-slot:cell(qrCodeUrl)="data">
+        <a :href="`${data.value}`">
+          <i class="fas fa-qrcode" aria-hidden="true"></i>
+        </a>
+      </template>
+      <template v-slot:cell(removeCouponId)="data">
+        <a @click="removeCoupon(`${data.value}`)">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        </a>
+      </template>
+    </b-table>
 
     <!-- 모달 -->
     <Modal v-if="showModal" @close="showModal = false">
@@ -22,7 +32,39 @@ import Modal from "./common/Modal.vue";
 export default {
   data() {
     return {
-      coupons: [],
+      fields: [
+        {
+          key: "name",
+          label: "이름",
+          sortable: true
+        },
+        {
+          key: "price",
+          label: "가격",
+          sortable: true
+        },
+        {
+          key: "neededCoins",
+          label: "필요 코인",
+          sortable: true
+        },
+        {
+          key: "storeName",
+          label: "가맹점 이름",
+          sortable: true
+        },
+        {
+          key: "qrCodeUrl",
+          label: "QR 코드",
+          sortable: false
+        },
+        {
+          key: "removeCouponId",
+          label: "삭제",
+          sortable: false
+        }
+      ],
+      items: [],
       showModal: false,
       msg: ""
     };
@@ -34,19 +76,25 @@ export default {
       searchParam: ""
     };
 
-    var headers = {
-      Authorization: "Bearer " + this.firebaseToken
-    };
-
     var _this = this;
     this.$http
       .get(config.getRestUrlBase() + "/coupon/summary/admin", {
-        params,
-        headers
+        params
       })
       .then(function(res) {
-        _this.coupons.push(res.data.message);
-        console.log(_this.coupons);
+        _this.items = res.data.message;
+        for (var i = 0; i < _this.items.length; i++) {
+          var item = _this.items[i];
+          item.removeCouponId = item.couponId;
+
+          var pictures = JSON.parse(item.pictures);
+          for (var j = 0; j < pictures.length; j++) {
+            if (pictures[j].type == 2) {
+              item.qrCodeUrl =
+                config.getRestUrlBase() + "/picture/qrcode/" + pictures[j].id;
+            }
+          }
+        }
       })
       .catch(function(error) {
         if (error.response.status == 401) {
@@ -54,6 +102,11 @@ export default {
           _this.showModal = !_this.showModal;
         }
       });
+  },
+  methods: {
+    removeCoupon(id) {
+      alert(id);
+    }
   },
   computed: {
     ...mapGetters({
