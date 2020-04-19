@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import { myFirebase } from "../firebase";
 import Modal from "./common/Modal.vue";
 import { store } from "../store";
 
@@ -57,13 +57,18 @@ export default {
 
       // 파이어베이스 콜백 함수에서 this 키워드가 undefined임
       var _this = this;
-      firebase
+      myFirebase
         .auth()
         .signInWithEmailAndPassword(this.form.email, this.form.password)
         .then(function(user) {
-          store.commit("validate");
-          store.commit("refreshFirebaseToken");
-          _this.$router.push("/admin/couponList");
+          myFirebase
+            .auth()
+            .currentUser.getIdToken(/* forceRefresh */ true)
+            .then(function(idToken) {
+              store.commit("validate");
+              store.commit("setFirebaseToken", idToken);
+              _this.$router.push("/admin/couponList");
+            });
         })
         .catch(function(error) {
           if (error.code == "auth/wrong-password") {
