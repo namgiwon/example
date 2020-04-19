@@ -1,32 +1,11 @@
 <template>
   <div id="app">
     <router-view></router-view>
-    <!-- 모달 -->
-    <Modal v-if="showModal" @close="showModal = false">
-      <h5 slot="header">등록 실패</h5>
-      <span slot="footer" @click="showModal = false">
-        {{ msg }}
-        <i class="closeModalBtn fas fa-times" aria-hidden="true"></i>
-      </span>
-    </Modal>
   </div>
 </template>
 
 <script>
-import Modal from "./components/common/Modal.vue";
-
-export default {
-  name: "app",
-  data() {
-    return {
-      msg: "",
-      showModal: false
-    };
-  },
-  components: {
-    Modal: Modal
-  }
-};
+export default {};
 </script>
 
 <style>
@@ -36,7 +15,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
 h1,

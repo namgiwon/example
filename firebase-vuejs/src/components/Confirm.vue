@@ -3,13 +3,12 @@
     <div v-if="!isValid">
       <p>이메일 인증 후 로그인 버튼을 클릭해 주세요.</p>
       <b-button variant="success" @click="emailVerified()">확인</b-button>
-      <p>{{isValid}}</p>
     </div>
     <div v-if="isValid">
       <b-alert variant="success" show>
         이메일 인증이 완료되었습니다.
         <br />
-        <router-link to="/storeInfo">바로가기</router-link>
+        <router-link to="/admin/couponList">바로가기</router-link>
       </b-alert>
     </div>
   </div>

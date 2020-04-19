@@ -62,7 +62,8 @@ export default {
         .signInWithEmailAndPassword(this.form.email, this.form.password)
         .then(function(user) {
           store.commit("validate");
-          _this.$router.push("/storeInfo");
+          store.commit("refreshFirebaseToken");
+          _this.$router.push("/admin/couponList");
         })
         .catch(function(error) {
           if (error.code == "auth/wrong-password") {

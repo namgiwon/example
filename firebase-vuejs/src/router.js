@@ -5,7 +5,9 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Signin from "./components/Signin";
 import Confirm from "./components/Confirm";
-import StoreInfo from "./components/StoreInfo";
+import CouponList from "./components/CouponList";
+import StoreList from "./components/StoreList";
+import Admin from "./components/Admin";
 import { store } from "./store";
 
 Vue.use(Router);
@@ -49,10 +51,24 @@ export default new Router({
       component: Confirm
     },
     {
-      path: "/storeInfo",
-      name: "storeInfo  ",
-      component: StoreInfo,
-      beforeEnter: requireAuth()
+      path: "/admin",
+      name: "admin",
+      component: Admin,
+      beforeEnter: requireAuth(),
+      children: [
+        {
+          path: "couponList",
+          name: "couponList",
+          component: CouponList,
+          beforeEnter: requireAuth()
+        },
+        {
+          path: "storeList",
+          name: "storeList",
+          component: StoreList,
+          beforeEnter: requireAuth()
+        }
+      ]
     }
   ]
 });
