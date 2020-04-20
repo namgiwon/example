@@ -27,25 +27,23 @@ export const store = new Vuex.Store({
       axios.defaults.headers.common = {
         Authorization: "Bearer " + token
       };
-    },
-    refreshFirebaseToken(state) {
-      myFirebase
-        .auth()
-        .currentUser.getIdToken(/* forceRefresh */ true)
-        .then(function(idToken) {
-          state.firebaseToken = idToken;
-          axios.defaults.headers.common = {
-            Authorization: "Bearer " + token
-          };
-        });
     }
   },
   actions: {
     validate(context) {
       return context.commit("validate");
     },
-    refreshFirebaseToken(context) {
-      return context.commit("setFirebaseToken");
+    setHeader(context) {
+      var _this = this;
+      myFirebase
+        .auth()
+        .currentUser.getIdToken(/* forceRefresh */ false)
+        .then(function(idToken) {
+          _this.state.firebaseToken = idToken;
+          axios.defaults.headers.common = {
+            Authorization: "Bearer " + idToken
+          };
+        });
     }
   }
 });

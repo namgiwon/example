@@ -63,7 +63,7 @@ export default {
         .then(function(user) {
           myFirebase
             .auth()
-            .currentUser.getIdToken(/* forceRefresh */ true)
+            .currentUser.getIdToken(/* forceRefresh */ false)
             .then(function(idToken) {
               store.commit("validate");
               store.commit("setFirebaseToken", idToken);

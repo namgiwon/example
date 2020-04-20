@@ -58,7 +58,6 @@ export default {
         .auth()
         .createUserWithEmailAndPassword(this.form.email, this.form.password)
         .then(user => {
-          console.log(user);
           _this.$router.push("/confirm");
         })
         .catch(error => {
