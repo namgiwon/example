@@ -9,10 +9,12 @@ import CouponList from "./components/CouponList";
 import StoreList from "./components/StoreList";
 import Admin from "./components/Admin";
 import { store } from "./store";
+import bus from "./bus.js";
 
 Vue.use(Router);
 
 const requireAuth = () => (from, to, next) => {
+  bus.$emit("start:spinner");
   if (store.getters.isValid) {
     return next();
   } else {
@@ -20,30 +22,39 @@ const requireAuth = () => (from, to, next) => {
   }
 };
 
+const notRequireAuth = () => (from, to, next) => {
+  bus.$emit("start:spinner");
+  return next();
+};
+
 export default new Router({
-  mode: "history",
+  //mode: "history",
   routes: [
     {
       path: "/login",
       component: Login,
       name: "login",
+      beforeEnter: notRequireAuth(),
       children: [
         {
           path: "signup",
           name: "signup",
-          component: Signup
+          component: Signup,
+          beforeEnter: notRequireAuth()
         },
         {
           path: "signin",
           name: "signin",
-          component: Signin
+          component: Signin,
+          beforeEnter: notRequireAuth()
         }
       ]
     },
     {
       path: "/",
       name: "main",
-      component: Main
+      component: Main,
+      beforeEnter: notRequireAuth()
     },
     {
       path: "/confirm",

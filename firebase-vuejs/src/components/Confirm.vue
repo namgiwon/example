@@ -17,6 +17,7 @@
 <script>
 import { store } from "../store";
 import { mapActions, mapMutations, mapGetters } from "vuex";
+import listMixins from "../listMixins.js";
 
 export default {
   methods: {
@@ -35,6 +36,7 @@ export default {
     ...mapGetters({
       isValid: "isValid"
     })
-  }
+  },
+  mixins: [listMixins]
 };
 </script>

@@ -23,22 +23,13 @@
       </b-form-group>
       <b-button type="submit" variant="primary">로그인</b-button>
     </b-form>
-
-    <!-- 모달 -->
-    <Modal v-if="showModal" @close="showModal = false">
-      <h5 slot="header">로그인 실패</h5>
-      <span slot="footer" @click="showModal = false">
-        {{msg}}
-        <i class="closeModalBtn fas fa-times" aria-hidden="true"></i>
-      </span>
-    </Modal>
   </div>
 </template>
 
 <script>
 import { myFirebase } from "../firebase";
-import Modal from "./common/Modal.vue";
 import { store } from "../store";
+import listMixins from "../listMixins.js";
 
 export default {
   data() {
@@ -46,9 +37,7 @@ export default {
       form: {
         email: "",
         password: ""
-      },
-      showModal: false,
-      msg: ""
+      }
     };
   },
   methods: {
@@ -72,15 +61,12 @@ export default {
         })
         .catch(function(error) {
           if (error.code == "auth/wrong-password") {
-            _this.msg = "비밀 번호가 틀렸습니다.";
-            _this.showModal = !_this.showModal;
+            alert("비밀 번호가 틀렸습니다.");
             return;
           }
         });
     }
   },
-  components: {
-    Modal: Modal
-  }
+  mixins: [listMixins]
 };
 </script>

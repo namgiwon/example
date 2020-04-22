@@ -1,11 +1,40 @@
 <template>
   <div id="app">
     <router-view></router-view>
+    <spinner :loading="LoadingStatus"></spinner>
   </div>
 </template>
 
 <script>
-export default {};
+import Spinner from "./components/common/Spinner.vue";
+import bus from "./bus.js";
+export default {
+  data() {
+    return {
+      LoadingStatus: false
+    };
+  },
+  methods: {
+    startSpinner() {
+      4;
+      this.LoadingStatus = true;
+    },
+    endSpinner() {
+      this.LoadingStatus = false;
+    }
+  },
+  created() {
+    bus.$on("start:spinner", this.startSpinner);
+    bus.$on("end:spinner", this.endSpinner);
+  },
+  beforeDestroy() {
+    bus.$off("start:spinner");
+    bus.$off("end:spinner");
+  },
+  components: {
+    Spinner
+  }
+};
 </script>
 
 <style>

@@ -1,10 +1,9 @@
 <template>
   <div class="container">
-    {{firebaseToken}}
     <b-table striped responsive head-variant="dark" hover :items="items" :fields="fields" small>
       <template v-slot:cell(qrCodeUrl)="data">
         <a :href="`${data.value}`">
-          <i class="fas fa-qrcode" aria-hidden="true"></i>
+          <i class="fas fa-qrcode" aria-hidden="true" style="color:black;"></i>
         </a>
       </template>
       <template v-slot:cell(removeCouponId)="data">
@@ -13,24 +12,17 @@
         </a>
       </template>
     </b-table>
-
-    <!-- 모달 -->
-    <Modal v-if="showModal" @close="showModal = false">
-      <h5 slot="header">요청 실패</h5>
-      <span slot="footer" @click="showModal = false">
-        {{ msg }}
-        <i class="closeModalBtn fas fa-times" aria-hidden="true"></i>
-      </span>
-    </Modal>
+    <Paging v-bind:propsdata="pagiingInfo" v-on:change-page="changePage"></Paging>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import { config } from "../config";
-import Modal from "./common/Modal.vue";
 import { store } from "../store";
-import { firebaseUtil } from "../firebase";
+import { config } from "../config";
+import { api } from "../api";
+import listMixins from "../listMixins.js";
+import Paging from "./common/Paging.vue";
 
 export default {
   data() {
@@ -68,64 +60,82 @@ export default {
         }
       ],
       items: [],
-      showModal: false,
-      msg: ""
+      pagiingInfo: {}
     };
   },
-  created: function() {
-    var params = {
-      page: 1,
-      isFirstPage: true,
-      searchParam: ""
-    };
-
-    // 파이어베이스 토큰이 만료되었을 경우 요청이 실패함. 401 에러 발생할 경우 토큰을 교체하고 다시 요청을 해야 되는데
-    // 모든 요청에서 그렇게 구현하기가 힘듦. 그래서 http 요청 전에 항상 새로운 토큰을 받아와야 함...
-    store.dispatch("setHeader");
+  mounted: function() {
     var _this = this;
-    this.$http
-      .get(config.getRestUrlBase() + "/coupon/summary/admin", {
-        params
-      })
+
+    api
+      .fetchCoupons(1)
       .then(function(res) {
-        _this.items = res.data.message;
-        for (var i = 0; i < _this.items.length; i++) {
-          var item = _this.items[i];
+        _this.pagiingInfo = res.data.extraInfo;
+        localStorage.setItem(
+          "messageTotalCount",
+          _this.pagiingInfo.messageTotalCount
+        );
+        for (var i = 0; i < res.data.message.length; i++) {
+          var item = res.data.message[i];
           item.removeCouponId = item.couponId;
 
           var pictures = JSON.parse(item.pictures);
           for (var j = 0; j < pictures.length; j++) {
             if (pictures[j].type == 2) {
               item.qrCodeUrl =
-                config.getRestUrlBase() + "/picture/qrcode/" + pictures[j].id;
+                config.restUrl + "/picture/qrcode/" + pictures[j].id;
             }
           }
         }
+        _this.items = res.data.message;
       })
       .catch(function(error) {
-        if (error.response.status == 401) {
-          _this.msg = "토큰이 만료되었습니다.";
-          _this.showModal = !_this.showModal;
-        }
+        console.log(error);
       });
   },
   methods: {
+    fetchData() {
+      console.log("Fetch Data");
+    },
+    changePage(data) {
+      for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        item.removeCouponId = item.couponId;
+
+        var pictures = JSON.parse(item.pictures);
+        for (var j = 0; j < pictures.length; j++) {
+          if (pictures[j].type == 2) {
+            item.qrCodeUrl =
+              config.restUrl + "/picture/qrcode/" + pictures[j].id;
+          }
+        }
+      }
+      this.items = data;
+    },
     removeCoupon(id) {
-      store.dispatch("setHeader");
-      this.$http
-        .delete(config.getRestUrlBase() + "/coupon/" + id)
-        .then(function(res) {
-          alert("오란요");
-        });
+      if (confirm("선택한 쿠폰을 삭제하시겠읍니까?")) {
+        store.dispatch("setHeader");
+        var _this = this;
+
+        api
+          .removeCoupon(id)
+          .then(function(res) {
+            for (var i = _this.items.length - 1; i >= 0; i--) {
+              if (_this.items[i].couponId == id) {
+                _this.items.splice(i, 1);
+              }
+            }
+          })
+          .catch(function(error) {
+            alert(error.response.data.message);
+          });
+      } else {
+        return;
+      }
     }
   },
-  computed: {
-    ...mapGetters({
-      firebaseToken: "getFirebaseToken"
-    })
-  },
   components: {
-    Modal: Modal
-  }
+    Paging: Paging
+  },
+  mixins: [listMixins]
 };
 </script>

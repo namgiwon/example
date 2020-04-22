@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import listMixins from "../listMixins.js";
+
 export default {
   data() {
     return {
@@ -23,6 +25,7 @@ export default {
       alert(JSON.stringify(this.form));
       console.log(firebase);
     }
-  }
+  },
+  mixins: [listMixins]
 };
 </script>
